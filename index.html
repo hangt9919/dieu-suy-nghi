@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Điều suy nghĩ</title>
+<meta name="description" content="Làm video tâm trạng và ảnh post cho page Điều suy nghĩ ngay trên điện thoại.">
+<meta name="theme-color" content="#0c0d10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Điều suy nghĩ">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400;1,500&family=Dancing+Script:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">Điều suy nghĩ</div>
+  <button class="icon-btn" id="btnSettings" aria-label="Cài đặt">⚙︎</button>
+</header>
+
+<nav class="tabs" id="tabs">
+  <button data-tab="video" class="on">Video</button>
+  <button data-tab="post">Ảnh post</button>
+  <button data-tab="history">Đã làm</button>
+</nav>
+
+<main>
+  <!-- ============ VIDEO ============ -->
+  <section id="tab-video" class="tab on">
+    <div class="empty" id="vEmpty">
+      <p class="lead">Chọn một video quay đêm hoặc trời mưa.<br>App sẽ chỉnh màu, thêm nhạc và gợi ý câu chữ.</p>
+      <label class="big-btn">
+        <input type="file" accept="video/*" id="vFile" hidden>
+        <span>＋ Chọn video</span>
+      </label>
+      <p class="hint" id="vDraftHint" hidden><button class="link" id="vResume">Mở lại video đang làm dở</button></p>
+    </div>
+
+    <div class="editor" id="vEditor" hidden>
+      <div class="stick">
+      <div class="stage-wrap">
+        <canvas id="vCanvas" class="stage r916"></canvas>
+        <div class="play-ico" id="vPlayIco">▶</div>
+        <div class="stage-loading" id="vLoading" hidden>Đang mở video…</div>
+      </div>
+      <div class="scrub">
+        <button class="icon-btn sm" id="vPlay" aria-label="Phát">▶</button>
+        <input type="range" id="vSeek" min="0" max="1000" value="0">
+        <span class="time" id="vTime">0:00</span>
+      </div>
+      </div>
+
+      <div class="tools" id="vTools">
+        <button data-p="text" class="on">Chữ</button>
+        <button data-p="look">Màu</button>
+        <button data-p="music">Nhạc</button>
+        <button data-p="trim">Cắt</button>
+      </div>
+      <div class="panels" id="vPanels"></div>
+
+      <div class="bottom-bar">
+        <label class="ghost-btn"><input type="file" accept="video/*" id="vFile2" hidden>Đổi video</label>
+        <button class="main-btn" id="vExport">Duyệt &amp; xuất video</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ẢNH POST ============ -->
+  <section id="tab-post" class="tab">
+    <div class="editor" id="pEditor">
+      <div class="seg" id="pAspect">
+        <button data-a="4:5" class="on">4:5 feed</button>
+        <button data-a="1:1">1:1</button>
+        <button data-a="9:16">9:16 story</button>
+      </div>
+      <div class="stick">
+      <div class="stage-wrap post">
+        <canvas id="pCanvas" class="stage"></canvas>
+      </div>
+      </div>
+      <div class="tools" id="pTools">
+        <button data-p="bg" class="on">Nền</button>
+        <button data-p="text">Chữ</button>
+        <button data-p="look">Màu</button>
+      </div>
+      <div class="panels" id="pPanels"></div>
+      <div class="bottom-bar">
+        <button class="main-btn" id="pExport">Duyệt &amp; lưu ảnh</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ĐÃ LÀM ============ -->
+  <section id="tab-history" class="tab">
+    <div id="histList" class="hist"></div>
+  </section>
+</main>
+
+<!-- kết quả xuất -->
+<div class="sheet" id="resultSheet" hidden>
+  <div class="sheet-card">
+    <div class="sheet-head"><b id="resTitle">Xong rồi</b><button class="icon-btn" data-close>✕</button></div>
+    <div id="resProgress" class="progress-box" hidden>
+      <div class="bar"><i id="resBar"></i></div>
+      <p id="resMsg">Đang dựng video…</p>
+      <p class="hint">Giữ màn hình mở, đừng chuyển sang app khác cho tới khi xong.</p>
+    </div>
+    <div id="resDone" hidden>
+      <div class="res-media" id="resMedia"></div>
+      <button class="main-btn wide" id="resSave">Lưu về máy</button>
+      <p class="hint" id="resNote"></p>
+      <label class="lbl">Caption</label>
+      <textarea id="resCaption" rows="4"></textarea>
+      <button class="ghost-btn wide" id="resCopy">Sao chép caption</button>
+    </div>
+  </div>
+</div>
+
+<!-- cài đặt -->
+<div class="sheet" id="setSheet" hidden>
+  <div class="sheet-card">
+    <div class="sheet-head"><b>Cài đặt</b><button class="icon-btn" data-close>✕</button></div>
+    <p class="hint">Gợi ý câu chữ dùng AI Gemini bằng khoá của bạn (lấy miễn phí ở aistudio.google.com → Get API key). Khoá chỉ lưu trên máy này, không gửi đi đâu ngoài Google/Groq.</p>
+    <label class="lbl" for="kGemini">Khoá Gemini</label>
+    <input id="kGemini" type="password" autocomplete="off" placeholder="AIza…">
+    <label class="lbl" for="kGroq">Khoá Groq (dự phòng, không bắt buộc)</label>
+    <input id="kGroq" type="password" autocomplete="off" placeholder="gsk_…">
+    <div class="row gap">
+      <button class="main-btn" id="kSave">Lưu</button>
+      <button class="ghost-btn" id="kTest">Thử AI</button>
+    </div>
+    <p class="hint" id="kMsg"></p>
+    <hr>
+    <label class="lbl" for="sTags">Hashtag luôn thêm vào caption</label>
+    <input id="sTags" type="text" value="#tamtrang #dieusuynghi">
+    <p class="hint small">Phiên bản <span id="ver"></span></p>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="js/quotes.js"></script>
+<script src="js/store.js"></script>
+<script src="js/render.js"></script>
+<script src="js/music.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/backgrounds.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/video.js"></script>
+<script src="js/post.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
